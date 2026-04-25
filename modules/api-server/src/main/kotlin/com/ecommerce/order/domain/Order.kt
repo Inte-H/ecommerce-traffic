@@ -18,25 +18,25 @@ import java.time.Instant
     }
 }
 
-// ─── Order Status (sealed class) ──────────────────────────────────────────────
-// sealed class: 주문 상태 전이를 컴파일 타임에 강제
+// ─── Order Status (sealed interface) ─────────────────────────────────────────
+// sealed interface: 주문 상태 전이를 컴파일 타임에 강제
 // when 절에서 모든 케이스를 처리하지 않으면 컴파일 에러
-sealed class OrderStatus {
-    object Created : OrderStatus()
-    object Paid : OrderStatus()
-    object Preparing : OrderStatus()
-    object Shipped : OrderStatus()
-    data class Cancelled(val reason: String, val cancelledAt: Instant) : OrderStatus()
+sealed interface OrderStatus {
+    data object Created : OrderStatus
+    data object Paid : OrderStatus
+    data object Preparing : OrderStatus
+    data object Shipped : OrderStatus
+    data class Cancelled(val reason: String, val cancelledAt: Instant) : OrderStatus
 
     fun canCancel(): Boolean = this is Created || this is Paid
     fun canPay(): Boolean = this is Created
 }
 
 // ─── Domain Events ───────────────────────────────────────────────────────────
-sealed class OrderEvent
-data class OrderCreatedEvent(val orderId: OrderId, val customerId: CustomerId) : OrderEvent()
-data class OrderCancelledEvent(val orderId: OrderId, val reason: String) : OrderEvent()
-data class OrderPaidEvent(val orderId: OrderId, val amount: Money) : OrderEvent()
+sealed interface OrderEvent
+data class OrderCreatedEvent(val orderId: OrderId, val customerId: CustomerId) : OrderEvent
+data class OrderCancelledEvent(val orderId: OrderId, val reason: String) : OrderEvent
+data class OrderPaidEvent(val orderId: OrderId, val amount: Money) : OrderEvent
 
 // ─── Order Item ───────────────────────────────────────────────────────────────
 data class OrderItem(
@@ -65,26 +65,29 @@ class Order private constructor(
 
     // 도메인 이벤트 수집 (명시적 발행)
     private val _events: MutableList<OrderEvent> = mutableListOf()
-    fun pullEvents(): List<OrderEvent> = _events.toList().also { _events.clear() }
+
+    // CQS: 읽기 전용 (이벤트 목록 조회)
+    val events: List<OrderEvent> get() = _events.toList()
+
+    // CQS: 커맨드 (이벤트 목록 초기화)
+    fun clearEvents() { _events.clear() }
 
     // 비즈니스 규칙: 주문 취소
-    fun cancel(reason: String): Order {
+    fun cancel(reason: String) {
         check(_status.canCancel()) {
             "취소할 수 없는 주문 상태입니다: ${_status::class.simpleName}"
         }
         _status = OrderStatus.Cancelled(reason, Instant.now())
         _events.add(OrderCancelledEvent(id, reason))
-        return this
     }
 
     // 비즈니스 규칙: 결제 완료 처리
-    fun markAsPaid(): Order {
+    fun markAsPaid() {
         check(_status.canPay()) {
             "결제할 수 없는 주문 상태입니다: ${_status::class.simpleName}"
         }
         _status = OrderStatus.Paid
         _events.add(OrderPaidEvent(id, total))
-        return this
     }
 
     companion object {

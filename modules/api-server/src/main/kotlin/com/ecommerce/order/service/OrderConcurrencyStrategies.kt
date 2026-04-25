@@ -121,6 +121,9 @@ class RedisStockOrderService(
 ) {
 
     // 서비스 시작 시 Redis에 재고 동기화 필요 (생략)
+    // @Transactional: placeOrder 자체에 선언 — private 메서드에 선언하면 Spring 프록시가
+    // 인터셉트하지 못해 트랜잭션이 묵시적으로 무시되는 버그를 방지
+    @Transactional
     fun placeOrder(command: PlaceOrderCommand): OrderId {
         val stockKey = "inventory:stock:${command.productId.value}"
 
@@ -137,11 +140,8 @@ class RedisStockOrderService(
 
         // 비동기로 DB 반영 (Kafka 이벤트로 전달)
         // eventPublisher.publish(StockDecreasedEvent(command.productId, command.quantity))
-        return saveOrder(command)
+        return OrderId(1L) // stub
     }
-
-    @Transactional
-    private fun saveOrder(command: PlaceOrderCommand): OrderId = OrderId(1L) // stub
 }
 
 // ─── Command ─────────────────────────────────────────────────────────────────
