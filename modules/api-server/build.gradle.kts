@@ -1,20 +1,27 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.1.21"
-    kotlin("plugin.spring") version "2.1.21"
+    kotlin("jvm") version "2.2.20"
+    kotlin("plugin.spring") version "2.2.20"
     id("nu.studer.jooq") version "9.0"
 }
 
 group = "com.ecommerce"
 version = "0.0.1-SNAPSHOT"
 
+// Toolchain은 JDK 25 (런타임/컴파일러 실행), 그러나 bytecode target은 24로 고정.
+// 이유: Kotlin 2.2.20이 아직 JVM target 25 미지원. JDK 25의 핵심 이점
+// (Virtual Threads, Compact Object Headers, Scoped Values)은 모두 런타임 기능이라
+// bytecode target 24여도 JDK 25에서 실행할 때 그대로 누림.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
     }
+    sourceCompatibility = JavaVersion.VERSION_24
+    targetCompatibility = JavaVersion.VERSION_24
 }
 
 repositories {
@@ -27,6 +34,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.redisson:redisson-spring-boot-starter:3.50.0")
     implementation("org.springframework.kafka:spring-kafka")
 
     // Kotlin
@@ -57,6 +65,7 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_24)
         freeCompilerArgs.addAll("-Xjsr305=strict")
     }
 }
