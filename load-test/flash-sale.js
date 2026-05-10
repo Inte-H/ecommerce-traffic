@@ -1,67 +1,77 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { Counter, Rate, Trend } from 'k6/metrics';
+import { Counter, Trend } from 'k6/metrics';
 
-// ─── 시나리오: Flash Sale (한정 재고 동시 주문) ──────────────────────────────
-// 실행: k6 run --env STRATEGY=pessimistic flash-sale.js
-// 전략: pessimistic | optimistic | redis-lock | redis-stock
+// ─── Phase 0 — no-lock baseline 부하 시나리오 ────────────────────────────────
+// 의도: 동시성 제어 없이 SELECT-check-UPDATE를 단일 endpoint에 동시에 때려
+//       lost update / oversold / negative stock 을 측정 가능한 형태로 노출시킨다.
+// 졸업 조건은 k6 결과가 아니라 부하 종료 후 SQL 측정 (psql)으로 판정한다:
+//   - SELECT COUNT(*) FROM orders WHERE product_id = ? > 초기 stock  → oversold
+//   - SELECT stock_qty FROM products WHERE id = ?                    → 음수면 lost update 가시 증거
+//
+// 실행:
+//   k6 run --env PRODUCT_ID=1 --env BASE_URL=http://localhost:8080 flash-sale.js
 
-const STRATEGY = __ENV.STRATEGY || 'pessimistic';
-const BASE_URL = 'http://localhost:8080';
-const PRODUCT_ID = 1; // 재고 10개인 플래시 세일 상품
+const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
+const ORDER_PATH = __ENV.ORDER_PATH || '/api/orders';
+const PRODUCT_ID = parseInt(__ENV.PRODUCT_ID || '1', 10);
 
-// 커스텀 메트릭
-const stockErrors = new Counter('stock_errors');    // 재고 부족 에러 수
-const concurrencyErrors = new Counter('concurrency_errors'); // 락 충돌 에러 수
+const insufficientStock = new Counter('insufficient_stock'); // 서버가 거절한 횟수 (참고용)
 const orderLatency = new Trend('order_latency', true);
 
 export const options = {
     scenarios: {
-        flash_sale: {
+        baseline: {
             executor: 'ramping-vus',
             startVUs: 0,
             stages: [
-                { duration: '10s', target: 100 },   // 워밍업
-                { duration: '20s', target: 1000 },  // 피크: 1000명 동시 요청
-                { duration: '10s', target: 0 },     // 쿨다운
+                { duration: '5s',  target: 100 },  // 워밍업
+                { duration: '20s', target: 500 },  // 피크: 동시성 노출 구간
+                { duration: '5s',  target: 0 },    // 쿨다운
             ],
         },
     },
-    thresholds: {
-        http_req_duration: ['p(95)<2000'],  // 95% 요청이 2초 이내
-        http_req_failed: ['rate<0.5'],      // 실패율 50% 미만 (재고 소진 당연)
-    },
+    // Phase 0는 "동시성 결함을 측정"이 목적이라 통과/실패 임계는 두지 않는다.
+    // 응답 시간과 처리량은 관찰 데이터로 보고서에 기록.
 };
 
 export default function () {
     const start = Date.now();
 
-    const res = http.post(`${BASE_URL}/api/orders/${STRATEGY}`, JSON.stringify({
+    const res = http.post(`${BASE_URL}${ORDER_PATH}`, JSON.stringify({
         customerId: Math.floor(Math.random() * 5000) + 1,
         productId: PRODUCT_ID,
         quantity: 1,
     }), {
         headers: { 'Content-Type': 'application/json' },
+        tags: { name: 'place_order' },
     });
 
     orderLatency.add(Date.now() - start);
 
-    if (res.status === 409) stockErrors.add(1);       // 재고 부족
-    if (res.status === 429) concurrencyErrors.add(1); // 락 충돌
+    if (res.status === 409) insufficientStock.add(1);
 
     check(res, {
-        'status is 200 or 409': (r) => r.status === 200 || r.status === 409,
+        'status is 200/201/409': (r) => r.status === 200 || r.status === 201 || r.status === 409,
     });
 
     sleep(0.1);
 }
 
 export function handleSummary(data) {
-    // 결과 요약 출력 (벤치마크 리포트용)
-    console.log(`\n=== Flash Sale Benchmark: ${STRATEGY} ===`);
-    console.log(`Total requests: ${data.metrics.http_reqs.values.count}`);
-    console.log(`Success (200):  ${data.metrics.http_reqs.values.count - stockErrors.value - data.metrics.http_req_failed.values.count}`);
-    console.log(`Stock errors:   ${stockErrors.value}`);
-    console.log(`p95 latency:    ${data.metrics.http_req_duration.values['p(95)']}ms`);
-    console.log(`RPS:            ${data.metrics.http_reqs.values.rate}`);
+    const m = data.metrics;
+    const total = m.http_reqs ? m.http_reqs.values.count : 0;
+    const failed = m.http_req_failed ? m.http_req_failed.values.passes : 0;
+    const p95 = m.http_req_duration ? m.http_req_duration.values['p(95)'] : 0;
+    const rps = m.http_reqs ? m.http_reqs.values.rate : 0;
+
+    console.log('\n=== Phase 0 baseline (no-lock) ===');
+    console.log(`Total requests:      ${total}`);
+    console.log(`HTTP failures:       ${failed}`);
+    console.log(`Insufficient stock:  ${insufficientStock.value || 0}`);
+    console.log(`p95 latency:         ${p95}ms`);
+    console.log(`RPS:                 ${rps}`);
+    console.log('\n→ 졸업 조건 판정은 psql로 직접 (oversold count, stock 음수 여부)');
+
+    return { stdout: '' }; // 위 console.log로 출력
 }
