@@ -110,5 +110,21 @@ class Order private constructor(
             order._events.add(OrderCreatedEvent(id, customerId))
             return order
         }
+
+        fun reconstitute(
+            id: OrderId,
+            customerId: CustomerId,
+            items: List<OrderItem>,
+            status: OrderStatus,
+            createdAt: Instant
+        ): Order {
+            return Order(
+                id=id,
+                customerId=customerId,
+                _items=items.toMutableList(),
+                _status=status,
+                createdAt=createdAt,
+                )
+        }
     }
 }

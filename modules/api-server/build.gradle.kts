@@ -76,14 +76,14 @@ tasks.withType<Test> {
 }
 
 jooq {
-    version.set("3.19.15")
+    version.set("3.19.28")
     configurations {
         create("main") {
             generateSchemaSourceOnCompilation.set(false)
             jooqConfiguration.apply {
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://localhost:5432/ecommerce"
+                    url = "jdbc:postgresql://192.168.64.1:5432/ecommerce"
                     user = "user"
                     password = "password"
                 }
