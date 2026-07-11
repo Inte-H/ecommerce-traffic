@@ -83,9 +83,11 @@ jooq {
             jooqConfiguration.apply {
                 jdbc.apply {
                     driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://192.168.64.1:5432/ecommerce"
-                    user = "user"
-                    password = "password"
+                    // 기본값은 WSL 에서 본 Windows 호스트의 PostgreSQL. 다른 환경은 -PjooqDbUrl=... 로 오버라이드.
+                    url = providers.gradleProperty("jooqDbUrl")
+                        .getOrElse("jdbc:postgresql://192.168.64.1:5432/ecommerce")
+                    user = providers.gradleProperty("jooqDbUser").getOrElse("user")
+                    password = providers.gradleProperty("jooqDbPassword").getOrElse("password")
                 }
                 generator.apply {
                     name = "org.jooq.codegen.KotlinGenerator"
