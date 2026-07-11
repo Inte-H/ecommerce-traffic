@@ -9,6 +9,7 @@ import com.ecommerce.order.domain.OrderId
 import com.ecommerce.product.domain.ProductId
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.BDDMockito.given
 import org.springframework.beans.factory.annotation.Autowired
@@ -74,6 +75,41 @@ class OrderControllerWebTest {
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.orderId").value(99))
+    }
+
+    // ─── 요청 검증 ─────────────────────────────────────────────────────────────
+
+    @Test
+    fun `quantity 가 0 이면 400을 반환한다`() {
+        mockMvc.perform(
+            post("/api/orders/place")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson(quantity = 0))
+        )
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `customerId 가 음수이면 400을 반환한다`() {
+        mockMvc.perform(
+            post("/api/orders/place")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson(customerId = -1L))
+        )
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `요청 본문이 깨진 JSON 이면 400과 메시지를 반환한다`() {
+        val result = mockMvc.perform(
+            post("/api/orders/place")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ this is not valid json")
+        )
+            .andExpect(status().isBadRequest)
+            .andReturn()
+
+        assertThat(result.response.contentAsString).contains("message")
     }
 
     // ─── 예외 전파 ─────────────────────────────────────────────────────────────

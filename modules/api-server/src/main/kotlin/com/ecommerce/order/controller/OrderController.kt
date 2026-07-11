@@ -4,6 +4,8 @@ import com.ecommerce.order.application.PlaceOrderCommand
 import com.ecommerce.order.application.PlaceOrderService
 import com.ecommerce.order.domain.CustomerId
 import com.ecommerce.product.domain.ProductId
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Positive
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,17 +20,17 @@ class OrderController(
 ) {
     @PostMapping("/place")
     @ResponseStatus(HttpStatus.CREATED)
-    fun place(@RequestBody request: PlaceOrderRequest): PlaceOrderResponse {
+    fun place(@Valid @RequestBody request: PlaceOrderRequest): PlaceOrderResponse {
         val result = placeOrderService.place(request.toCommand())
         return PlaceOrderResponse(orderId = result.orderId.value)
     }
 }
 
 data class PlaceOrderRequest(
-    val customerId: Long,
-    val productId: Long,
-    val quantity: Int,
-    val addressId: Long,
+    @field:Positive val customerId: Long,
+    @field:Positive val productId: Long,
+    @field:Positive val quantity: Int,
+    @field:Positive val addressId: Long,
 ) {
     fun toCommand(): PlaceOrderCommand {
         return PlaceOrderCommand(

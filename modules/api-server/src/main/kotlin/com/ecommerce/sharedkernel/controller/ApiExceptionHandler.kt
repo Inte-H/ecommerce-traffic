@@ -5,6 +5,8 @@ import com.ecommerce.order.application.ProductNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 
@@ -32,6 +34,22 @@ class ApiExceptionHandler {
         return ResponseEntity
             .status(HttpStatus.BAD_REQUEST)
             .body(ApiErrorResponse(message = exception.message ?: "Invalid request"))
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class)
+    fun handleInvalidRequest(exception: MethodArgumentNotValidException): ResponseEntity<ApiErrorResponse> {
+        val message = exception.bindingResult.fieldErrors
+            .joinToString(", ") { fieldError -> "${fieldError.field}: ${fieldError.defaultMessage}" }
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiErrorResponse(message = message))
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleMalformedBody(exception: HttpMessageNotReadableException): ResponseEntity<ApiErrorResponse> {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiErrorResponse(message = "Malformed request body"))
     }
 
     // 리포지토리 계층의 불변식 위반(check/error)이 body 없는 불투명한 500으로 새어나가면
