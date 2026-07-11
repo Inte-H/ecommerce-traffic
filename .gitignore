@@ -2,6 +2,7 @@
 # Gradle
 # ===========================
 .gradle/
+.gradle-home/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -10,7 +11,7 @@ build/
 # ===========================
 # jOOQ Generated Sources
 # ===========================
-src/main/generated/
+**/src/main/generated/
 
 # ===========================
 # IntelliJ IDEA
@@ -95,3 +96,22 @@ seed-data/*.csv
 # Docker volumes (local data)
 # ===========================
 infrastructure/docker/volumes/
+
+# ===========================
+# repo 루트가 컨테이너 HOME으로 쓰이며 새는 개인 dotfile — 커밋 금지
+# (.vscode는 디렉터리가 아닌 디바이스 노드로 존재해 기존 .vscode/ 규칙에 안 걸림)
+# ===========================
+/.bashrc
+/.bash_profile
+/.profile
+/.zshrc
+/.zprofile
+/.gitconfig
+/.gitmodules
+/.mcp.json
+/.ripgreprc
+/.vscode
+/.claude/
+/.agents/
+/.codex/
+/.kotlin/
