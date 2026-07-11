@@ -13,7 +13,7 @@ import { Counter, Trend } from 'k6/metrics';
 //   k6 run --env PRODUCT_ID=1 --env BASE_URL=http://localhost:8080 flash-sale.js
 
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
-const ORDER_PATH = __ENV.ORDER_PATH || '/api/orders';
+const ORDER_PATH = __ENV.ORDER_PATH || '/api/orders/place';
 const PRODUCT_ID = parseInt(__ENV.PRODUCT_ID || '1', 10);
 
 const insufficientStock = new Counter('insufficient_stock'); // 서버가 거절한 횟수 (참고용)
