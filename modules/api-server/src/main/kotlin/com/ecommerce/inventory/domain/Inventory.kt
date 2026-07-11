@@ -1,6 +1,6 @@
 package com.ecommerce.inventory.domain
 
-import com.ecommerce.order.domain.ProductId
+import com.ecommerce.product.domain.ProductId
 
 // ─── Domain Events ─────────────────────────────────────────────────────────
 sealed interface InventoryEvent

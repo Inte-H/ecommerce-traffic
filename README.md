@@ -66,4 +66,4 @@ CONTEXT.md                 # 도메인 용어집
 
 | Phase | 브랜치 | 상태 | 보고서 |
 |---|---|---|---|
-| 0 | `phase-0/baseline-no-locking` | 시작 전 | _작성 예정_ |
+| 0 | `phase-0/baseline-no-locking` | 진행 중 | _작성 예정_ |

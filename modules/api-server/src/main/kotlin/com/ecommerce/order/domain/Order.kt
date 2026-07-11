@@ -1,22 +1,13 @@
 package com.ecommerce.order.domain
 
+import com.ecommerce.product.domain.ProductId
+import com.ecommerce.sharedkernel.domain.Money
 import java.time.Instant
 
 // ─── Value Objects ───────────────────────────────────────────────────────────
 // value class: 런타임 오버헤드 없이 ID 타입을 구분 → 타입 혼동 방지 (컴파일 에러)
 @JvmInline value class OrderId(val value: Long)
 @JvmInline value class CustomerId(val value: Long)
-@JvmInline value class ProductId(val value: Long)
-
-// 금액: 음수 불허, 연산 오버로딩
-@JvmInline value class Money(val amount: Long) {
-    init { require(amount >= 0) { "금액은 0 이상이어야 합니다: $amount" } }
-    operator fun plus(other: Money) = Money(amount + other.amount)
-    operator fun minus(other: Money): Money {
-        require(amount >= other.amount) { "잔액이 부족합니다" }
-        return Money(amount - other.amount)
-    }
-}
 
 // ─── Order Status (sealed interface) ─────────────────────────────────────────
 // sealed interface: 주문 상태 전이를 컴파일 타임에 강제
@@ -124,7 +115,20 @@ class Order private constructor(
                 _items=items.toMutableList(),
                 _status=status,
                 createdAt=createdAt,
-                )
+            )
         }
     }
+}
+
+data class NewOrder(
+    val customerId: CustomerId,
+    val items: List<OrderItem>,
+    val createdAt: Instant = Instant.now()
+) {
+    init {
+        require(items.isNotEmpty()) { "주문 항목이 비어있습니다" }
+        require(items.size <= 20) { "한 번에 최대 20 종류의 상품을 주문할 수 있습니다" }
+    }
+
+    val total: Money get() = items.fold(Money(0)) { acc, item -> acc + item.subtotal }
 }

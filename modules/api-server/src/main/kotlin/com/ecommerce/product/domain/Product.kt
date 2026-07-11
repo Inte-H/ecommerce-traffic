@@ -1,10 +1,10 @@
 package com.ecommerce.product.domain
 
-import com.ecommerce.order.domain.Money
-import com.ecommerce.order.domain.ProductId
+import com.ecommerce.sharedkernel.domain.Money
 
 // ─── Value Objects ──────────────────────────────────────────────────────────
 // value class: 카테고리 ID 타입 안전성 보장
+@JvmInline value class ProductId(val value: Long)
 @JvmInline value class CategoryId(val value: Long)
 
 // ─── Product (data class — 읽기 중심, 불변) ────────────────────────────────

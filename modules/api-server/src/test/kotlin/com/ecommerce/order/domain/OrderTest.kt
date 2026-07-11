@@ -1,5 +1,7 @@
 package com.ecommerce.order.domain
 
+import com.ecommerce.product.domain.ProductId
+import com.ecommerce.sharedkernel.domain.Money
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test

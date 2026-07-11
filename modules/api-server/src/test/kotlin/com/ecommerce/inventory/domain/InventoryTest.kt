@@ -1,6 +1,6 @@
 package com.ecommerce.inventory.domain
 
-import com.ecommerce.order.domain.ProductId
+import com.ecommerce.product.domain.ProductId
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
