@@ -7,9 +7,4 @@ value class Money(val amount: Long) {
     }
 
     operator fun plus(other: Money): Money = Money(amount + other.amount)
-
-    operator fun minus(other: Money): Money {
-        require(amount >= other.amount) { "잔액이 부족합니다" }
-        return Money(amount - other.amount)
-    }
 }
