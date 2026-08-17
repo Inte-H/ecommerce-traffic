@@ -71,14 +71,14 @@ export function handleSummary(data) {
     const p95 = m.http_req_duration ? m.http_req_duration.values['p(95)'] : 0;
     const rps = m.http_reqs ? m.http_reqs.values.rate : 0;
 
-    console.log('\n=== Phase 0 baseline (no-lock) ===');
+    console.log('\n=== flash-sale summary ===');
     console.log(`Total requests:      ${total}`);
     console.log(`Accepted (2xx):      ${total - failed - rejected}`);
     console.log(`Insufficient stock:  ${rejected}  (409)`);
     console.log(`HTTP failures:       ${failed}  (5xx / 기타 — 200/201/409 제외)`);
     console.log(`p95 latency:         ${p95}ms`);
     console.log(`RPS:                 ${rps}`);
-    console.log('\n→ 졸업 조건 판정은 psql로 직접 (oversold count, stock 음수 여부)');
+    console.log('\n→ 졸업 조건 판정은 부하 후 SQL 로 (load-test/measure.sh 가 자동 수행)');
 
     return { stdout: '' }; // 위 console.log로 출력
 }

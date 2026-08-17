@@ -67,4 +67,4 @@ CONTEXT.md                 # 도메인 용어집
 | Phase | 브랜치 | 상태 | 보고서 |
 |---|---|---|---|
 | 0 | `phase-0/baseline-no-locking` | 졸업 — 조건 2/2 충족 (oversold 19, stock -19) | [phase-0.md](./docs/reports/phase-0.md) — 섹션 3(코틀린 기능 인덱스)만 남음 |
-| 1 | `phase-1/select-for-update` | 진행 중 (구현 전) | [phase-1.md](./docs/reports/phase-1.md) — 뼈대 + 졸업 조건 2개 선언됨 |
+| 1 | `phase-1/select-for-update` | 측정 완료 — 졸업 조건 2/2 충족 (oversold 0, stock 0) · 비용 rps −41%, p95 ×2.7 | [phase-1.md](./docs/reports/phase-1.md) — 측정 표 + 증거 기입, 해석·섹션 3·4 남음 |
