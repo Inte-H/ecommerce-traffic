@@ -14,6 +14,7 @@ class ProductStockJooqRepository(
     override fun findStock(id: ProductId): Int? {
         return dsl.selectFrom(PRODUCTS)
             .where(PRODUCTS.ID.eq(id.value.toInt()))
+            .forUpdate()
             .fetchOne(PRODUCTS.STOCK_QTY)
     }
 
