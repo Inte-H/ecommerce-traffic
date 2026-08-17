@@ -115,3 +115,6 @@ infrastructure/docker/volumes/
 /.agents/
 /.codex/
 /.kotlin/
+
+# k6 측정 출력 (load-test/measure.sh)
+load-test/out/
