@@ -66,4 +66,4 @@ CONTEXT.md                 # 도메인 용어집
 
 | Phase | 브랜치 | 상태 | 보고서 |
 |---|---|---|---|
-| 0 | `phase-0/baseline-no-locking` | 진행 중 (측정 전) | [phase-0.md](./docs/reports/phase-0.md) — 뼈대 + 졸업 조건 선언됨 |
+| 0 | `phase-0/baseline-no-locking` | 측정 완료 — 졸업 조건 2/2 충족 (oversold 19, stock -19), 해석 작성 중 | [phase-0.md](./docs/reports/phase-0.md) — 측정 표 + 증거 기입, 섹션 3·4 남음 |
