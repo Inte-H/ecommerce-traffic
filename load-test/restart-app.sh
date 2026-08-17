@@ -10,6 +10,7 @@
 #   APP_LOG     앱 로그 경로                   (기본 ~/.local/var/api-server.log)
 #   APP_PID     pid 파일 경로                  (기본 ~/.local/var/api-server.pid)
 #   EXTRA_ARGS  앱에 덧붙일 인자
+#   JAR         실행할 jar 경로 (기본 modules/api-server/build/libs/api-server-0.0.1-SNAPSHOT.jar — 다른 브랜치 빌드로 대조 측정할 때 지정)
 #
 # Redis(Redisson)/Kafka 자동설정은 제외한다 — 측정 환경에 해당 서버가 없고, 현재 phase 코드가 쓰지 않는다.
 # 코드가 Redis/Kafka 를 쓰기 시작하는 phase 부터는 이 제외 목록을 걷어내고 서버를 띄워야 한다.
@@ -20,7 +21,7 @@ cd "$(dirname "$0")/.."
 JAVA="${JAVA:-$HOME/jdk-25/bin/java}"; [ -x "$JAVA" ] || JAVA=java
 APP_LOG="${APP_LOG:-$HOME/.local/var/api-server.log}"
 APP_PID="${APP_PID:-$HOME/.local/var/api-server.pid}"
-JAR=modules/api-server/build/libs/api-server-0.0.1-SNAPSHOT.jar
+JAR="${JAR:-modules/api-server/build/libs/api-server-0.0.1-SNAPSHOT.jar}"
 
 EXCLUDES=org.redisson.spring.starter.RedissonAutoConfigurationV2
 EXCLUDES+=,org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
