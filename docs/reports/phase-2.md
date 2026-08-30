@@ -21,8 +21,11 @@ Phase 0 기준선은 두 실행(1,816 rps / p95 104ms, 대조군 1,927 / 93ms), 
 
 ### 측정 절차
 
+재기동 직후 첫 실행은 JIT 예열 비용이 섞여(2026-08-30 측정: 예열 전 1,374~1,515 rps / p95 186~226ms, 예열 후 2,239 rps / p95 36ms) 버리고, **두 번째 실행부터 측정값으로 쓴다.** Phase 0·1 대조군도 같은 절차로 다시 쟀다(`phase-2-artifacts/*-recheck-warm.*`).
+
 ```
 load-test/restart-app.sh
+RESET_STOCK=106 load-test/measure.sh          # 예열 — 결과는 버린다
 load-test/sample-internals.sh 36 load-test/out/internals-phase2.csv &
 RESET_STOCK=106 load-test/measure.sh
 wait
