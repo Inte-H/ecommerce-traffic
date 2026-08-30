@@ -1,6 +1,6 @@
 package com.ecommerce.product.domain
 
 interface ProductStockRepository {
-    fun findStock(id: ProductId): Int?
+    fun tryLockStock(id: ProductId, quantity: Int): Boolean
     fun decrease(id: ProductId, quantity: Int)
 }

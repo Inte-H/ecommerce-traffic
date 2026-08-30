@@ -11,11 +11,13 @@ import java.time.LocalDateTime
 class ProductStockJooqRepository(
     private val dsl: DSLContext
 ) : ProductStockRepository {
-    override fun findStock(id: ProductId): Int? {
-        return dsl.selectFrom(PRODUCTS)
+    override fun tryLockStock(id: ProductId, quantity: Int): Boolean {
+        return dsl.selectOne()
+            .from(PRODUCTS)
             .where(PRODUCTS.ID.eq(id.value.toInt()))
+            .and(PRODUCTS.STOCK_QTY.ge(quantity))
             .forUpdate()
-            .fetchOne(PRODUCTS.STOCK_QTY)
+            .fetchOne() != null
     }
 
     override fun decrease(id: ProductId, quantity: Int) {

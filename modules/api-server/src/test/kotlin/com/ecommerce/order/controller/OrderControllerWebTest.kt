@@ -131,7 +131,7 @@ class OrderControllerWebTest {
     @Test
     fun `서비스가 InsufficientStockException 을 던지면 409를 반환한다`() {
         given(placeOrderService.place(sampleCommand()))
-            .willThrow(InsufficientStockException(ProductId(2L), 3, 1))
+            .willThrow(InsufficientStockException(ProductId(2L), 3))
 
         mockMvc.perform(
             post("/api/orders/place")

@@ -9,7 +9,6 @@ class ProductNotFoundException(
 class InsufficientStockException(
     productId: ProductId,
     requested: Int,
-    available: Int,
 ) : RuntimeException(
-    "Insufficient stock: productId=${productId.value}, requested=$requested, available=$available"
+    "Insufficient stock: productId=${productId.value}, requested=$requested"
 )

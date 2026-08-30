@@ -26,11 +26,8 @@ open class PlaceOrderService(
         val product = productRepository.findById(productId)
             ?: throw ProductNotFoundException(productId)
 
-        val stock = productStockRepository.findStock(productId)
-            ?: throw ProductNotFoundException(productId)
-
-        if (stock < quantity) {
-            throw InsufficientStockException(productId, quantity, stock)
+        if (!productStockRepository.tryLockStock(productId, quantity)) {
+            throw InsufficientStockException(productId, quantity)
         }
 
         productStockRepository.decrease(productId, quantity)
