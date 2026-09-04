@@ -1,0 +1,11 @@
+== 재고 리셋: products.id=1 stock_qty=106
+== 부하 전 기준값
+initial_stock=106 baseline_sold=2014
+== 부하 후 판정
+initial_stock          106
+baseline_sold          2014
+sold_during_load       106
+final_stock_qty        0
+oversold               0
+stock < 0              no
+(판정은 phase 보고서의 졸업 조건 기준으로 — 예: phase-0 은 oversold>0 OR stock<0, phase-1 은 oversold<=0 AND stock>=0)
