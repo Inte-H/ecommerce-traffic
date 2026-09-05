@@ -11,6 +11,8 @@
 #   APP_PID     pid 파일 경로                  (기본 ~/.local/var/api-server.pid)
 #   EXTRA_ARGS  앱에 덧붙일 인자
 #   JAR         실행할 jar 경로 (기본 modules/api-server/build/libs/api-server-0.0.1-SNAPSHOT.jar — 다른 브랜치 빌드로 대조 측정할 때 지정)
+#   DIAG        지정 시 GC 로그와 JFR 기록을 켠다 (DIAG=1 load-test/restart-app.sh)
+#   DIAG_DIR    GC 로그·JFR 파일 위치            (기본 load-test/out; gc-<시각>.log, app-<시각>.jfr — JFR 은 앱 종료 시 덤프)
 #
 # Redis(Redisson)/Kafka 자동설정은 제외한다 — 측정 환경에 해당 서버가 없고, 현재 phase 코드가 쓰지 않는다.
 # 코드가 Redis/Kafka 를 쓰기 시작하는 phase 부터는 이 제외 목록을 걷어내고 서버를 띄워야 한다.
@@ -22,6 +24,16 @@ JAVA="${JAVA:-$HOME/jdk-25/bin/java}"; [ -x "$JAVA" ] || JAVA=java
 APP_LOG="${APP_LOG:-$HOME/.local/var/api-server.log}"
 APP_PID="${APP_PID:-$HOME/.local/var/api-server.pid}"
 JAR="${JAR:-modules/api-server/build/libs/api-server-0.0.1-SNAPSHOT.jar}"
+DIAG_DIR="${DIAG_DIR:-load-test/out}"
+
+DIAG_ARGS=""
+if [ -n "${DIAG:-}" ]; then
+    mkdir -p "$DIAG_DIR"
+    STAMP="$(date +%Y%m%d-%H%M%S)"
+    DIAG_ARGS="-Xlog:gc*:file=$DIAG_DIR/gc-$STAMP.log:time,uptime,level,tags"
+    DIAG_ARGS+=" -XX:FlightRecorderOptions=repository=$DIAG_DIR/jfr-repo"
+    DIAG_ARGS+=" -XX:StartFlightRecording=filename=$DIAG_DIR/app-$STAMP.jfr,dumponexit=true"
+fi
 
 EXCLUDES=org.redisson.spring.starter.RedissonAutoConfigurationV2
 EXCLUDES+=,org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
@@ -44,10 +56,11 @@ if [ -f "$APP_PID" ]; then
 fi
 
 echo "== 앱 기동 (로그: $APP_LOG)"
+[ -n "$DIAG_ARGS" ] && echo "== 진단 기록: $DIAG_DIR/gc-$STAMP.log, $DIAG_DIR/app-$STAMP.jfr"
 mkdir -p "$(dirname "$APP_LOG")"
 : > "$APP_LOG"
 # shellcheck disable=SC2086
-nohup "$JAVA" -jar "$JAR" \
+nohup "$JAVA" $DIAG_ARGS -jar "$JAR" \
     --spring.autoconfigure.exclude="$EXCLUDES" \
     --logging.level.org.jooq.tools.LoggerListener=WARN \
     ${EXTRA_ARGS:-} >> "$APP_LOG" 2>&1 &

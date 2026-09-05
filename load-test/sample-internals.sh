@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# 부하 중 앱 내부(HikariCP)와 DB 내부(pg_stat_activity)를 1초 간격으로 샘플링해 CSV 로 남긴다.
+# 부하 중 앱 내부(HikariCP)와 DB 내부(pg_stat_activity)를 샘플링해 CSV 로 남긴다 (1초 sleep + 수집 비용으로 실제 간격은 약 2초).
+# 더 촘촘한 시간축은 k6 요청별 기록(measure.sh TIMELINE=1)과 sample-cpu.py 가 맡는다.
 # 목적: 외부 지연(k6)이 "커넥션 풀 대기"에서 나오는지 "DB 행 락 대기"에서 나오는지 가른다.
 #
 # 사용 예 (measure.sh 와 같이):
@@ -11,6 +12,7 @@
 # 환경변수: BASE_URL (기본 http://localhost:8080), PSQL (기본 ~/.local/opt/pgsql-runner/psql)
 #
 # 컬럼:
+#   ts                    샘플 시각 (epoch ms — GC 로그, k6 시간축, CPU 샘플과 같은 축에 놓기 위한 값)
 #   t                     경과 초 (실제 벽시계 기준 — 한 바퀴가 1초를 넘길 수 있어 인덱스가 아닌 시각 차로 기록)
 #   pool_active           HikariCP 사용 중 커넥션 수 (최대 = maximum-pool-size)
 #   pool_pending          커넥션을 기다리는 스레드 수 (>0 이면 풀 대기 발생)
@@ -39,13 +41,15 @@ dbcounts() { # 한 줄: active lock_wait idle_in_tx
       | grep -E '^[[:space:]]*[0-9]+[[:space:]]*\|' | tr -d ' ' | tr '|' ' '
 }
 
-echo "t,pool_active,pool_pending,pool_acquire_avg_ms,db_active,db_lock_wait,db_idle_in_tx" > "$OUT"
+echo "ts,t,pool_active,pool_pending,pool_acquire_avg_ms,db_active,db_lock_wait,db_idle_in_tx" > "$OUT"
 prev_cnt=$(metric hikaricp.connections.acquire COUNT)
 prev_tot=$(metric hikaricp.connections.acquire TOTAL_TIME)
 START=$(date +%s.%N)
 while :; do
     sleep 1
-    t=$(python3 -c "print(round($(date +%s.%N)-$START,1))")
+    NOW=$(date +%s.%N)
+    ts=${NOW%.*}${NOW#*.}; ts=${ts:0:13}
+    t=$(python3 -c "print(round($NOW-$START,1))")
     [ "${t%.*}" -ge "$DUR" ] && break
     act=$(metric hikaricp.connections.active VALUE)
     pend=$(metric hikaricp.connections.pending VALUE)
@@ -54,6 +58,6 @@ while :; do
     avg=$(python3 -c "dc=$cnt-$prev_cnt; print(round(($tot-$prev_tot)*1000/dc,1) if dc>0 else 0)")
     prev_cnt=$cnt; prev_tot=$tot
     read -r dba dbl dbi <<< "$(dbcounts)"
-    echo "$t,${act%.*},${pend%.*},$avg,${dba:-0},${dbl:-0},${dbi:-0}" >> "$OUT"
+    echo "$ts,$t,${act%.*},${pend%.*},$avg,${dba:-0},${dbl:-0},${dbi:-0}" >> "$OUT"
 done
 echo "== 샘플 저장: $OUT"

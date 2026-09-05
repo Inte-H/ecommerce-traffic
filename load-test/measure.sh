@@ -17,6 +17,8 @@
 #   K6           k6 실행 파일                             (기본 ~/.local/opt/k6/k6, 없으면 PATH 의 k6)
 #   K6_ARGS      k6 run 에 덧붙일 인자
 #   OUT_DIR      k6 요약 JSON 저장 위치                   (기본 load-test/out)
+#   TIMELINE     지정 시 k6 요청별 기록을 남기고 0.1초 묶음 시간축으로 집계 (TIMELINE=1 …)
+#                → k6-timeline-<시각>.csv.gz (원본), k6-timeline-<시각>-100ms.csv (집계, load-test/timeline.py)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -35,6 +37,12 @@ scalar() {
 mkdir -p "$OUT_DIR"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 SUMMARY="$OUT_DIR/k6-summary-$STAMP.json"
+TIMELINE_ARGS=""
+if [ -n "${TIMELINE:-}" ]; then
+    TIMELINE_RAW="$OUT_DIR/k6-timeline-$STAMP.csv.gz"
+    TIMELINE_ARGS="--out csv=$TIMELINE_RAW"
+    export K6_CSV_TIME_FORMAT=unix_milli
+fi
 
 if [ -n "${RESET_STOCK:-}" ]; then
     echo "== 재고 리셋: products.id=$PRODUCT_ID stock_qty=$RESET_STOCK"
@@ -54,7 +62,13 @@ fi
 echo "== k6 실행 (요약: $SUMMARY)"
 # shellcheck disable=SC2086
 "$K6" run --env PRODUCT_ID="$PRODUCT_ID" --env BASE_URL="$BASE_URL" \
-    --summary-export="$SUMMARY" ${K6_ARGS:-} load-test/flash-sale.js
+    --summary-export="$SUMMARY" $TIMELINE_ARGS ${K6_ARGS:-} load-test/flash-sale.js
+
+if [ -n "$TIMELINE_ARGS" ]; then
+    TIMELINE_BINNED="${TIMELINE_RAW%.csv.gz}-100ms.csv"
+    python3 load-test/timeline.py "$TIMELINE_RAW" > "$TIMELINE_BINNED"
+    echo "== 시간축: $TIMELINE_RAW → $TIMELINE_BINNED"
+fi
 
 echo "== 부하 후 판정"
 SOLD_DURING_LOAD=$(scalar "SELECT COALESCE(SUM(quantity), 0) - $BASELINE_SOLD FROM order_items WHERE product_id = $PRODUCT_ID")
