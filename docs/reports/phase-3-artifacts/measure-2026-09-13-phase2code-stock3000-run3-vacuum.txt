@@ -1,0 +1,128 @@
+== 재고 리셋: products.id=1 stock_qty=3000
+== 부하 전 기준값
+initial_stock=3000 baseline_sold=22577
+== k6 실행 (요약: load-test/out/k6-summary-20260913-213000.json)
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: load-test/flash-sale.js
+        output: -
+
+     scenarios: (100.00%) 1 scenario, 500 max VUs, 1m0s max duration (incl. graceful stop):
+              * baseline: Up to 500 looping VUs for 30s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
+
+
+running (0m00.9s), 018/500 VUs, 54 complete and 0 interrupted iterations
+baseline   [   3% ] 018/500 VUs  00.9s/30.0s
+
+running (0m01.9s), 038/500 VUs, 168 complete and 0 interrupted iterations
+baseline   [   6% ] 038/500 VUs  01.9s/30.0s
+
+running (0m02.9s), 058/500 VUs, 283 complete and 0 interrupted iterations
+baseline   [  10% ] 058/500 VUs  02.9s/30.0s
+
+running (0m03.9s), 078/500 VUs, 395 complete and 0 interrupted iterations
+baseline   [  13% ] 078/500 VUs  03.9s/30.0s
+
+running (0m04.9s), 098/500 VUs, 513 complete and 0 interrupted iterations
+baseline   [  16% ] 098/500 VUs  04.9s/30.0s
+
+running (0m05.9s), 118/500 VUs, 630 complete and 0 interrupted iterations
+baseline   [  20% ] 118/500 VUs  05.9s/30.0s
+
+running (0m06.9s), 138/500 VUs, 747 complete and 0 interrupted iterations
+baseline   [  23% ] 138/500 VUs  06.9s/30.0s
+
+running (0m07.9s), 158/500 VUs, 862 complete and 0 interrupted iterations
+baseline   [  26% ] 158/500 VUs  07.9s/30.0s
+
+running (0m08.9s), 178/500 VUs, 979 complete and 0 interrupted iterations
+baseline   [  30% ] 178/500 VUs  08.9s/30.0s
+
+running (0m09.9s), 198/500 VUs, 1098 complete and 0 interrupted iterations
+baseline   [  33% ] 198/500 VUs  09.9s/30.0s
+
+running (0m10.9s), 218/500 VUs, 1215 complete and 0 interrupted iterations
+baseline   [  36% ] 218/500 VUs  10.9s/30.0s
+
+running (0m11.9s), 238/500 VUs, 1340 complete and 0 interrupted iterations
+baseline   [  40% ] 238/500 VUs  11.9s/30.0s
+
+running (0m12.9s), 258/500 VUs, 1461 complete and 0 interrupted iterations
+baseline   [  43% ] 258/500 VUs  12.9s/30.0s
+
+running (0m13.9s), 278/500 VUs, 1588 complete and 0 interrupted iterations
+baseline   [  46% ] 278/500 VUs  13.9s/30.0s
+
+running (0m14.9s), 298/500 VUs, 1714 complete and 0 interrupted iterations
+baseline   [  50% ] 298/500 VUs  14.9s/30.0s
+
+running (0m15.9s), 318/500 VUs, 1839 complete and 0 interrupted iterations
+baseline   [  53% ] 318/500 VUs  15.9s/30.0s
+
+running (0m16.9s), 338/500 VUs, 1964 complete and 0 interrupted iterations
+baseline   [  56% ] 338/500 VUs  16.9s/30.0s
+
+running (0m17.9s), 358/500 VUs, 2085 complete and 0 interrupted iterations
+baseline   [  60% ] 358/500 VUs  17.9s/30.0s
+
+running (0m18.9s), 378/500 VUs, 2212 complete and 0 interrupted iterations
+baseline   [  63% ] 378/500 VUs  18.9s/30.0s
+
+running (0m19.9s), 398/500 VUs, 2333 complete and 0 interrupted iterations
+baseline   [  66% ] 398/500 VUs  19.9s/30.0s
+
+running (0m20.9s), 418/500 VUs, 2460 complete and 0 interrupted iterations
+baseline   [  70% ] 418/500 VUs  20.9s/30.0s
+
+running (0m21.9s), 438/500 VUs, 2584 complete and 0 interrupted iterations
+baseline   [  73% ] 438/500 VUs  21.9s/30.0s
+
+running (0m22.9s), 458/500 VUs, 2710 complete and 0 interrupted iterations
+baseline   [  76% ] 458/500 VUs  22.9s/30.0s
+
+running (0m23.9s), 478/500 VUs, 2834 complete and 0 interrupted iterations
+baseline   [  80% ] 478/500 VUs  23.9s/30.0s
+
+running (0m24.9s), 498/500 VUs, 2959 complete and 0 interrupted iterations
+baseline   [  83% ] 498/500 VUs  24.9s/30.0s
+
+running (0m25.9s), 416/500 VUs, 5622 complete and 0 interrupted iterations
+baseline   [  86% ] 416/500 VUs  25.9s/30.0s
+
+running (0m26.9s), 315/500 VUs, 8745 complete and 0 interrupted iterations
+baseline   [  90% ] 315/500 VUs  26.9s/30.0s
+
+running (0m27.9s), 215/500 VUs, 11258 complete and 0 interrupted iterations
+baseline   [  93% ] 215/500 VUs  27.9s/30.0s
+
+running (0m28.9s), 115/500 VUs, 12878 complete and 0 interrupted iterations
+baseline   [  96% ] 115/500 VUs  28.9s/30.0s
+
+running (0m29.9s), 017/500 VUs, 13571 complete and 0 interrupted iterations
+baseline   [ 100% ] 017/500 VUs  29.9s/30.0s
+time="2026-09-13T21:30:31+09:00" level=info msg="\n=== flash-sale summary ===" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="Total requests:      13592" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="Accepted (2xx):      3000" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="Insufficient stock:  10592  (409)" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="HTTP failures:       0  (5xx / 기타 — 200/201/409 제외)" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="p95 latency:         2772.6520249999994ms" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="RPS:                 451.87772666127097" source=console
+time="2026-09-13T21:30:31+09:00" level=info msg="\n→ 졸업 조건 판정은 부하 후 SQL 로 (load-test/measure.sh 가 자동 수행)" source=console
+
+running (0m30.1s), 000/500 VUs, 13592 complete and 0 interrupted iterations
+baseline ✓ [ 100% ] 000/500 VUs  30s
+== 부하 후 판정
+initial_stock          3000
+baseline_sold          22577
+sold_during_load       3000
+final_stock_qty        0
+oversold               0
+stock < 0              no
+(판정은 phase 보고서의 졸업 조건 기준으로 — 예: phase-0 은 oversold>0 OR stock<0, phase-1 은 oversold<=0 AND stock>=0)
